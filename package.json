@@ -1,0 +1,23 @@
+{
+  "name": "mpds",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/David1906/MPDS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/David1906/MPDS/issues"
+  },
+  "homepage": "https://github.com/David1906/MPDS#readme",
+  "dependencies": {
+    "console-mpds": "^1.0.4"
+  }
+}
