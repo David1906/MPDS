@@ -2,6 +2,7 @@ const { Console } = require("console-mpds");
 const console = new Console();
 
 const SQUARE_LENGTH = 5;
+const SQUARE_BORDER = SQUARE_LENGTH - 1;
 const BORDER_CHAR = "*";
 
 const rows = console.readNumber("Ingresa el número de filas: ");
@@ -14,8 +15,8 @@ let table = "";
 for (let i = 0; i < tableHeight; i++) {
   for (let j = 0; j < tableWidth; j++) {
     if (
-      i % (SQUARE_LENGTH - 1) === 0 ||
-      j % (SQUARE_LENGTH - 1) === 0 
+      i % SQUARE_BORDER === 0 || 
+      j % SQUARE_BORDER === 0
     ) {
       table += BORDER_CHAR;
     } else {
