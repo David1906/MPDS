@@ -4,6 +4,7 @@ const console = new Console();
 const SQUARE_LENGTH = 5;
 const SQUARE_BORDER = SQUARE_LENGTH - 1;
 const BORDER_CHAR = "*";
+const FILL_CHAR = " ";
 
 const rows = console.readNumber("Ingresa el número de filas: ");
 const columns = console.readNumber("Ingresa el número de columnas: ");
@@ -20,7 +21,7 @@ for (let i = 0; i < tableHeight; i++) {
     ) {
       table += BORDER_CHAR;
     } else {
-      table += " ";
+      table += FILL_CHAR;
     }
   }
   table += "\n";
