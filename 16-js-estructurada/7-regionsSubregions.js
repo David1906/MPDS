@@ -18,7 +18,7 @@ for (let i = 0; i < REGIONS.length; i++) {
             regionIndex = j;
         }
     }
-    if (regionIndex === undefined && REGIONS[i] !== undefined) {
+    if (regionIndex === undefined) {
         regionIndex = result.length;
         result[regionIndex] = [];
         result[regionIndex][REGION_NAME] = REGIONS[i];
