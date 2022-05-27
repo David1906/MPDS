@@ -9,133 +9,133 @@ function playMastermind() {
     } while (isResumed());
 
     function playGame() {
+        const MAX_ATTEMPTS = 10;
         const COMBINATION_LENGTH = 4;
-        const COLORS = 'rgbycm';
-        const secret = getSecret();
+        const VALID_COLORS = ['r', 'g', 'b', 'y', 'c', 'm'];
+        const secretCombination = getSecretCombination(VALID_COLORS, COMBINATION_LENGTH);
         let proposedCombinations = [];
-        let blacks = [];
-        let whites = [];
         let isWinner;
         let hasAttempts;
         console.writeln('----- MASTERMIND -----');
         do {
-            const attempt = proposedCombinations.length;
-            writeBoard(secret, proposedCombinations, blacks, whites, attempt);
-            hasAttempts = hasAvailableAttempts(attempt);
+            hasAttempts = proposedCombinations.length < MAX_ATTEMPTS;
+            writeBoard(secretCombination, proposedCombinations, hasAttempts);
             if (hasAttempts) {
-                proposedCombinations[attempt] = readProposedCombination();
-                blacks[attempt] = getBlacks(secret, proposedCombinations[attempt]);
-                whites[attempt] = getWhites(secret, proposedCombinations[attempt]);
+                readProposedCombination(proposedCombinations, VALID_COLORS, COMBINATION_LENGTH);
             }
-            isWinner = blacks[attempt] === COMBINATION_LENGTH;
+            isWinner = secretCombination === proposedCombinations[proposedCombinations.length - 1];
         } while (hasAttempts && !isWinner);
-        writeResult(isWinner, secret);
+        writeResult(isWinner);
 
-        function getSecret() {
-            let secretColors = [];
-            do {
-                const randomColor = COLORS[randomIntFromInterval(0, COLORS.length - 1)];
-                let isIncluded = false;
-                for (let i = 0; !isIncluded && i < secretColors.length; i++) {
-                    isIncluded = secretColors[i] === randomColor;
-                }
-                if (!isIncluded) {
-                    secretColors[secretColors.length] = randomColor;
-                }
-            } while (secretColors.length < COMBINATION_LENGTH);
-            shuffleArray(secretColors, 1000);
+        function getSecretCombination(validColors, combinationLength) {
+            let secretColors = getRandomColors(validColors, combinationLength);
+            const SHUFFLE_ITERATIONS = 1000;
+            shuffleArray(secretColors, SHUFFLE_ITERATIONS);
             let secret = '';
             for (const color of secretColors) {
                 secret += color;
             }
             return secret;
 
+            function getRandomColors(validColors, combinationLength) {
+                let randomColors = [];
+                do {
+                    const randomColor = validColors[randomIntFromInterval(0, validColors.length - 1)];
+                    let isIncluded = false;
+                    for (let i = 0; !isIncluded && i < randomColors.length; i++) {
+                        isIncluded = randomColors[i] === randomColor;
+                    }
+                    if (!isIncluded) {
+                        randomColors[randomColors.length] = randomColor;
+                    }
+                } while (randomColors.length < combinationLength);
+                return randomColors;
+            }
             function shuffleArray(array, iterations) {
                 for (let i = 0; i < iterations; i++) {
-                    const a = randomIntFromInterval(0, COMBINATION_LENGTH - 1);
-                    const b = randomIntFromInterval(0, COMBINATION_LENGTH - 1);
+                    const a = randomIntFromInterval(0, array.length - 1);
+                    const b = randomIntFromInterval(0, array.length - 1);
                     const temp = array[a];
                     array[a] = array[b];
                     array[b] = temp;
                 }
             }
             function randomIntFromInterval(min, max) {
-                return Math.floor(Math.random() * (max - min + 1) + min);
+                const random = Math.random() * (max - min + 1) + min;
+                return random - (random % 1);
             }
         }
-        function writeBoard(secret, proposedCombinations, blacks, whites, attempt) {
-            console.writeln(`\n${attempt} attempt(s):`);
-            writeSecret(secret);
+        function writeBoard(secretCombination, proposedCombinations, hasAttempts) {
+            console.writeln(`\n${proposedCombinations.length} attempt(s):`);
+            writeSecretCombination(secretCombination, hasAttempts);
             for (let i = 0; i < proposedCombinations.length; i++) {
-                console.writeln(`${proposedCombinations[i]} --> ${blacks[i]} blacks and ${whites[i]} whites`);
+                const blacks = getBlacks(secretCombination, proposedCombinations[i]);
+                const whites = getWhites(secretCombination, proposedCombinations[i]);
+                console.writeln(`${proposedCombinations[i]} --> ${blacks} blacks and ${whites} whites`);
             }
 
-            function writeSecret(secret, isHidden = true) {
+            function writeSecretCombination(secretCombination, isHidden = true) {
                 const HIDDEN_CHAR = '*';
                 let msg = '';
-                for (const color of secret) {
+                for (const color of secretCombination) {
                     msg += isHidden ? HIDDEN_CHAR : color;
                 }
                 console.writeln(msg);
             }
+            function getBlacks(secretCombination, proposedCombination) {
+                let blacks = 0;
+                for (let i = 0; i < secretCombination.length; i++) {
+                    if (proposedCombination[i] === secretCombination[i]) {
+                        blacks++;
+                    }
+                }
+                return blacks;
+            }
+            function getWhites(secretCombination, proposedCombination) {
+                let whites = 0;
+                for (let i = 0; i < secretCombination.length; i++) {
+                    for (let j = 0; j < proposedCombination.length; j++) {
+                        if (i !== j && secretCombination[i] === proposedCombination[j]) {
+                            whites++;
+                        }
+                    }
+                }
+                return whites;
+            }
         }
-        function readProposedCombination() {
+        function readProposedCombination(proposedCombinations, validColors, combinationLength) {
             let combination;
             let error;
             do {
-                combination = console.readString(`Propose a combination (${COLORS}): `);
-                error = isValidCombination(combination);
+                combination = console.readString(`Propose a combination (${validColors}): `);
+                error = validateCombination(combination, validColors, combinationLength);
                 if (error !== '') {
                     console.writeln(error);
                 }
             } while (error !== '');
-            return combination;
+            proposedCombinations[proposedCombinations.length] = combination;
 
-            function isValidCombination(combination) {
-                if (combination.length !== COMBINATION_LENGTH) {
-                    return `Wrong length, it must be ${COMBINATION_LENGTH}`;
+            function validateCombination(combination, validColors, combinationLength) {
+                if (combination.length !== combinationLength) {
+                    return `Wrong length, it must be ${combinationLength}`;
                 }
                 let isValid = true;
                 for (let i = 0; isValid && i < combination.length; i++) {
-                    isValid = isColorValid(combination[i]);
+                    isValid = isValidColor(combination[i], validColors);
                 }
-                return isValid ? '' : `Wrong colors, they must be: ${COLORS}`;
+                return isValid ? '' : `Wrong colors, they must be: ${validColors}`;
 
-                function isColorValid(color) {
+                function isValidColor(color, validColors) {
                     let isValid = false;
-                    for (let i = 0; !isValid && i < COLORS.length; i++) {
-                        isValid = color === COLORS[i];
+                    for (let i = 0; !isValid && i < validColors.length; i++) {
+                        isValid = color === validColors[i];
                     }
                     return isValid;
                 }
             }
         }
-        function getBlacks(secret, proposedCombination) {
-            let blacks = 0;
-            for (let i = 0; i < secret.length; i++) {
-                if (proposedCombination[i] === secret[i]) {
-                    blacks++;
-                }
-            }
-            return blacks;
-        }
-        function getWhites(secret, proposedCombination) {
-            let whites = 0;
-            for (let i = 0; i < secret.length; i++) {
-                for (let j = 0; j < proposedCombination.length; j++) {
-                    if (i !== j && secret[i] === proposedCombination[j]) {
-                        whites++;
-                    }
-                }
-            }
-            return whites;
-        }
-        function hasAvailableAttempts(attempt) {
-            const MAX_ATTEMPTS = 10;
-            return attempt < MAX_ATTEMPTS;
-        }
-        function writeResult(isWinner, secret) {
-            let msg = `You've lost!!! :-(\nSecret: ${secret}`;
+        function writeResult(isWinner) {
+            let msg = `You've lost!!! :-(`;
             if (isWinner) {
                 msg = `You've won!!! ;-)`;
             }
