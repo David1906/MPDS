@@ -25,7 +25,7 @@ function playMastermind() {
             }
             isWinner = secretCombination === proposedCombinations[proposedCombinations.length - 1];
         } while (hasAttempts && !isWinner);
-        writeResult(isWinner);
+        writeGameResult(isWinner);
 
         function getSecretCombination(validColors, combinationLength) {
             let secretColors = getRandomColors(validColors, combinationLength);
@@ -129,15 +129,7 @@ function playMastermind() {
                 }
             }
         }
-        function arrayIncludes(array, searchItem) {
-            for (const item of array) {
-                if (item === searchItem) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        function writeResult(isWinner) {
+        function writeGameResult(isWinner) {
             let msg = `You've lost!!! :-(`;
             if (isWinner) {
                 msg = `You've won!!! ;-)`;
@@ -150,15 +142,15 @@ function playMastermind() {
         let response;
         do {
             response = console.readString('Do you want to continue? (y/n):');
-        } while (!isValid(response));
+        } while (!arrayIncludes(VALID_RESPONSES, response));
         return response === 'Y' || response === 'y';
-
-        function isValid(response) {
-            let isValid = false;
-            for (let i = 0; !isValid && i < VALID_RESPONSES.length; i++) {
-                isValid = response === VALID_RESPONSES[i];
+    }
+    function arrayIncludes(array, searchItem) {
+        for (const item of array) {
+            if (item === searchItem) {
+                return true;
             }
-            return isValid;
         }
+        return false;
     }
 }
