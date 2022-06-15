@@ -19,7 +19,7 @@ function playMastermind() {
         console.writeln('----- MASTERMIND -----');
         do {
             hasAttempts = proposedCombinations.length < MAX_ATTEMPTS;
-            writeBoard(secretCombination, proposedCombinations, hasAttempts);
+            writeProposedCombinations(proposedCombinations, secretCombination, hasAttempts);
             if (hasAttempts) {
                 readProposedCombination(proposedCombinations, VALID_COLORS, COMBINATION_LENGTH);
             }
@@ -40,12 +40,8 @@ function playMastermind() {
             function getRandomColors(validColors, combinationLength) {
                 let randomColors = [];
                 do {
-                    const randomColor = validColors[randomIntFromInterval(0, validColors.length - 1)];
-                    let isIncluded = false;
-                    for (let i = 0; !isIncluded && i < randomColors.length; i++) {
-                        isIncluded = randomColors[i] === randomColor;
-                    }
-                    if (!isIncluded) {
+                    const randomColor = validColors[getRandomInt(0, validColors.length - 1)];
+                    if (!arrayIncludes(randomColors, randomColor)) {
                         randomColors[randomColors.length] = randomColor;
                     }
                 } while (randomColors.length < combinationLength);
@@ -53,19 +49,18 @@ function playMastermind() {
             }
             function shuffleArray(array, iterations) {
                 for (let i = 0; i < iterations; i++) {
-                    const a = randomIntFromInterval(0, array.length - 1);
-                    const b = randomIntFromInterval(0, array.length - 1);
+                    const a = getRandomInt(0, array.length - 1);
+                    const b = getRandomInt(0, array.length - 1);
                     const temp = array[a];
                     array[a] = array[b];
                     array[b] = temp;
                 }
             }
-            function randomIntFromInterval(min, max) {
-                const random = Math.random() * (max - min + 1) + min;
-                return random - (random % 1);
+            function getRandomInt(min, max) {
+                return parseInt(Math.random() * (max - min + 1) + min);
             }
         }
-        function writeBoard(secretCombination, proposedCombinations, hasAttempts) {
+        function writeProposedCombinations(proposedCombinations, secretCombination, hasAttempts) {
             console.writeln(`\n${proposedCombinations.length} attempt(s):`);
             writeSecretCombination(secretCombination, hasAttempts);
             for (let i = 0; i < proposedCombinations.length; i++) {
@@ -74,7 +69,7 @@ function playMastermind() {
                 console.writeln(`${proposedCombinations[i]} --> ${blacks} blacks and ${whites} whites`);
             }
 
-            function writeSecretCombination(secretCombination, isHidden = true) {
+            function writeSecretCombination(secretCombination, isHidden) {
                 const HIDDEN_CHAR = '*';
                 let msg = '';
                 for (const color of secretCombination) {
@@ -119,20 +114,28 @@ function playMastermind() {
                 if (combination.length !== combinationLength) {
                     return `Wrong length, it must be ${combinationLength}`;
                 }
-                let isValid = true;
-                for (let i = 0; isValid && i < combination.length; i++) {
-                    isValid = isValidColor(combination[i], validColors);
+                if (!areValidColors(validColors, combination)) {
+                    return `Wrong colors, they must be: ${validColors}`;
                 }
-                return isValid ? '' : `Wrong colors, they must be: ${validColors}`;
+                return '';
 
-                function isValidColor(color, validColors) {
-                    let isValid = false;
-                    for (let i = 0; !isValid && i < validColors.length; i++) {
-                        isValid = color === validColors[i];
+                function areValidColors(validColors, combination) {
+                    for (const color of combination) {
+                        if (!arrayIncludes(validColors, color)) {
+                            return false;
+                        }
                     }
-                    return isValid;
+                    return true;
                 }
             }
+        }
+        function arrayIncludes(array, searchItem) {
+            for (const item of array) {
+                if (item === searchItem) {
+                    return true;
+                }
+            }
+            return false;
         }
         function writeResult(isWinner) {
             let msg = `You've lost!!! :-(`;
