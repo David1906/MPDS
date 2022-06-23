@@ -30,34 +30,13 @@ function playMastermind() {
             return game;
 
             function setSecretCombination(game) {
-                let secretColors = getRandomColors(game);
-                const SHUFFLE_ITERATIONS = 1000;
-                shuffleArray(secretColors, SHUFFLE_ITERATIONS);
-                let secret = '';
-                for (const color of secretColors) {
-                    secret += color;
-                }
-                game.secretCombination = secret;
-
-                function getRandomColors(game) {
-                    let randomColors = [];
-                    do {
-                        const randomColor = game.VALID_COLORS[getRandomIndex(game.VALID_COLORS)];
-                        if (!arrayIncludes(randomColors, randomColor)) {
-                            randomColors[randomColors.length] = randomColor;
-                        }
-                    } while (randomColors.length < game.COMBINATION_LENGTH);
-                    return randomColors;
-                }
-                function shuffleArray(array, iterations) {
-                    for (let i = 0; i < iterations; i++) {
-                        const a = getRandomIndex(array);
-                        const b = getRandomIndex(array);
-                        const temp = array[a];
-                        array[a] = array[b];
-                        array[b] = temp;
+                do {
+                    const randomColor = game.VALID_COLORS[getRandomIndex(game.VALID_COLORS)];
+                    if (!arrayIncludes(game.secretCombination, randomColor)) {
+                        game.secretCombination += randomColor;
                     }
-                }
+                } while (game.secretCombination.length < game.COMBINATION_LENGTH);
+
                 function getRandomIndex(array) {
                     return parseInt(Math.random() * array.length);
                 }
